@@ -17,9 +17,11 @@ char *c;
  c=(char*)malloc(sizeof(char)*0100);
 
 	 
-	 strcpy(c,"int a,b,c;");
+	 strcpy(c,"int a;");
+	 yydebug=3;
 	init_objfile(&file);
 scan_string(c);
+summary(&file);
 	}
 	
 	int main()

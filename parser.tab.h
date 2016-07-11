@@ -109,20 +109,22 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 18 "parser.y" /* yacc.c:1909  */
+#line 19 "parser.y" /* yacc.c:1909  */
 
 char *val;
 struct ast *node;
 int tokenspecific;
 struct symbolset *sset;
-void* (*action)(void*);
+void* (*fn)(struct operands_data*);
+struct action *act;
 struct block *b;
 struct literal_data *cons;
 struct data_access_result *dar;
 struct func_call_params_set *func_params;
+struct fn_param_list *func_def;
 
 
-#line 126 "parser.tab.h" /* yacc.c:1909  */
+#line 128 "parser.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

@@ -10,8 +10,9 @@ int isinit;
 
 };
 extern struct objfile file;
-struct objfile* addblock(struct block node,struct objfile *file);
-
+struct block * createblock(struct block *inner,char *type,char *name,struct symbol *sym,struct action* act,struct block *next);
+struct objfile* addblock(struct block *node,struct objfile *file);
+void print_symbol(struct symbol *s);
 void writetofile(char *name,struct objfile *file);
 struct instruction * create_instruction(int type,char *metadata);
 struct block *  addsymbol(struct symbol sym,struct objfile *file,struct block *b);

@@ -21,13 +21,32 @@ int str;
 
 };
 
+struct fn_param_list{
+
+
+int datatype;
+int name;
+struct fn_param_list *next;
+
+
+};
+struct fn_sig{
+char* returntype;
+char * name;
+struct fn_param_list *start;
+
+
+
+};
 struct block{
 char *type;
 char *name;
+struct fn_sig *sig;
 int id;
 char *metadata;
 int symcount;
 int instcount;
+int blockcount;
 struct symbol *sym;
 struct action *istr;
 struct block *blocks;
@@ -36,9 +55,10 @@ struct block *next;
 struct symbol{
 int id;
 char *name;
-char *type ;
+char *type;
 char *meta;
-char *value;
+struct fn_sig *sig;
+struct literal_data *value;
 struct symbol *next;
 
 };
@@ -55,7 +75,7 @@ struct symbol *start;
 struct action{
 
 struct block *b;
-void *data;
+struct data_access_result *d1,*d2;
 void* (*f)(void *);
 struct action *next;
 
@@ -69,23 +89,30 @@ int type1,type2;
 
 };
 struct literal_data{
+
 int i;
 float f;
 char c;
 char *str;
 void *userdefined;
 int type;
+struct literal_data *next;
 };
 
 struct data_access_result{
 
 struct literal_data *data;
 struct action *act;
+void * pointer;
 
 };
 
-struct func_call_params_set{
+struct act_or_data{
+struct data_access_result *data;
+struct action *act;
 
+};
+struct func_call_params_set{
 struct func_call_param *start;
 
 

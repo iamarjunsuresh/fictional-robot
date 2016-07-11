@@ -1,0 +1,18 @@
+parser.y:582:19: error: ‘equal’ undeclared (first use in this function)
+ condition_oper:ASSIGN ASSIGN { $$=equal;}
+                   ^
+parser.y:583:18: error: ‘ntequal’ undeclared (first use in this function)
+  |EXCLAIM ASSIGN {$$=ntequal;}
+                  ^
+parser.y:584:18: error: ‘gt’ undeclared (first use in this function)
+  |GT {$$=gt;}
+                  ^
+parser.y:585:18: error: ‘lt’ undeclared (first use in this function)
+  |LT {$$=lt;}
+                  ^
+parser.y:586:18: error: ‘lte’ undeclared (first use in this function)
+  |LT ASSIGN {$$=lte;}
+                  ^
+parser.y:587:18: error: ‘gte’ undeclared (first use in this function)
+  |GT ASSIGN {$$=gte;}
+
