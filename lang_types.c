@@ -35,7 +35,7 @@ switch(node->operation)
 {
 case T_VAR_DEC:;
 	
-             struct ast* n;
+             /*struct ast* n;
              n=node;
              struct symbol var;
              char* dtype=(char*)malloc(sizeof(char)*strlen(n->val));
@@ -66,8 +66,7 @@ case T_VAR_DEC:;
                break;
                }
               n=n->rc; 
-   		 }     
-
+   		 }     */
 		
 		     break;
 case T_BLOCK_DEC:;

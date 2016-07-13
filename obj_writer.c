@@ -14,14 +14,18 @@ void  init_objfile(struct objfile *n)
 n->symbols=NULL;
 n->blocks=NULL;
 n->symcount=0;
-n->block_count=0;
 
 }
 
 void print_symbol(struct symbol *s){
+int c;
+//scanf(" %d",&c);
 if(s==NULL){printf("NULL");return;}
-printf("{name:%s}",s->name);
-
+while(s!=NULL)
+{
+printf("{name:%s}-->",s->name);
+s=s->next;
+}
 }
 struct objfile* addblock(struct block *node,struct objfile *file)
 {
@@ -43,7 +47,6 @@ prev->next=node;
 
 }
 
-file->block_count++;
 }
 
 
@@ -58,10 +61,12 @@ n->blocks=inner;
 char *name;
 int id;
 char *metadata;*/
+n->id=file.block_count;
+file.block_count++;
 n-> symcount=0;
 n->instcount=0;
 n->blockcount=0;
-
+n->name=name;
 n->sym=sym;
 n->istr=act;
 n->next=next;
@@ -70,7 +75,10 @@ return n;
 
 void print_block(struct block *b){
 
+
 if(b==NULL){printf("NULL");return;}
+printf("block====================");
+printf("id=%d",b->id);
 struct symbol *symb;
 struct block *inner;
 struct action *istart;
@@ -79,15 +87,19 @@ symb=b->sym;
 inner=b->blocks;
 
 istart=b->istr;
+printf("\n{symbols:");
 print_symbol(symb);
+printf("}");
+printf("\n{inner:");
 print_block(inner);
+printf("}");
 //print_instr(istart);
 
 
 
 
 
-printf("{name:%s\nsymbol_count:%d\nblock_count:%d}",b->name,b->symcount,b->blockcount);
+printf("\n{name:%s\nsymbol_count:%d\nblock_count:%d}",b->name,b->symcount,b->blockcount);
 
 }
 void summary(struct  objfile *fil)
@@ -100,15 +112,10 @@ struct symbol *t;t=fil->symbols;
 
 struct symbol *prev=NULL;
 //fil->symbols=NULL;
-printf("\nSUMMARY\n====================\nsymbols:");
-while(t!=NULL)
-{
-printf("\n");
+printf("\nSUMMARY\n====================\nsym-count:%d\nblock-count%d\nsymbols:",fil->symcount,fil->block_count);
 
 print_symbol(t);
-prev=t;
-t=t->next;
-}
+
 struct block *b=NULL,*prevb=NULL;
 b=fil->blocks;
 
@@ -125,67 +132,57 @@ printf("==================================================");
 
 
 }
-struct block *  addsymbol(struct symbol sym,struct objfile *fil,struct block *b){
+struct block *  addsymbol(struct symbol *sym,struct objfile *fil,struct block *b){
 
-
+if(sym==NULL){return b;}
 
 if(b==NULL)
 {
 
-struct symbol *t;t=fil->symbols;
-
-
-
+struct symbol *t;t=sym;
 struct symbol *prev=NULL;
-//fil->symbols=NULL;
-
 while(t!=NULL)
 {
-
+t->id=fil->symcount;
+fil->symcount++;
 
 prev=t;
 t=t->next;
-}
-struct symbol *n;n=(struct symbol*)malloc(sizeof(struct symbol));*n=sym;
-n->next=NULL;
-n->id=fil->symcount;
-if(t==NULL&&prev==NULL)
-{
-fil->symbols=n;
 
 }
-else{
-prev->next=n;
 
-}
-fil->symcount++;
 
-printf("added symbol %s",sym.name);
+//fil->symbols=NULL;
+
+prev->next=fil->symbols;
+fil->symbols=sym;
+
+//fil->symcount++;
+
+//printf("added symbol %s",sym->name);
 return NULL;
 }
 else{
 
-struct symbol *t=b->sym;
 
+
+struct symbol *t;t=sym;
 struct symbol *prev=NULL;
-
 while(t!=NULL)
 {
+t->id=b->symcount;
+b->symcount++;
+
 prev=t;
 t=t->next;
-}
-struct symbol *n;n=(struct symbol*)malloc(sizeof(struct symbol));*n=sym;
-n->id=b->symcount;
-if(t==NULL&&prev==NULL)
-{
-b->sym=n;
-printf("addedsymbol to block");
-}
-else{
-prev->next=n;
 
 }
-b->symcount++;
+
+
+//fil->symbols=NULL;
+
+prev->next=b->sym;
+b->sym=sym;
 return b;
 }
 
@@ -266,5 +263,32 @@ write_block(b);
 
 
 }
+
+void clean_symbol(struct symbol *s)
+{
+
+
+}
+
+
+void clean(struct objfile *f)
+{
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

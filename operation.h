@@ -1,5 +1,6 @@
 #ifndef __OPERATION_H__
 #define __OPERATION_H__
+#include <malloc.h>
 #define CREATE(x) (struct x*)malloc(sizeof(struct x))
 #define CREAT(x,l) (x*)malloc(sizeof(x)*(l))
  
@@ -14,6 +15,7 @@ T_VAR
 };
 struct data{
 int i;
+
 int d;
 int f;
 int str;
@@ -55,7 +57,7 @@ struct block *next;
 struct symbol{
 int id;
 char *name;
-char *type;
+int type;
 char *meta;
 struct fn_sig *sig;
 struct literal_data *value;
@@ -76,7 +78,7 @@ struct action{
 
 struct block *b;
 struct data_access_result *d1,*d2;
-void* (*f)(void *);
+void* (*f)(struct operands_data *);
 struct action *next;
 
 

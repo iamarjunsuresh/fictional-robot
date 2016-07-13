@@ -997,7 +997,7 @@ case 31:
 YY_RULE_SETUP
 #line 94 "scanner.l"
 {yylval.val=memcreate(yytext,yyleng);
-				
+				printf("identifier return");
 				return IDENTIFIER;}
 	YY_BREAK
 case 32:
@@ -2080,8 +2080,9 @@ void yyfree (void * ptr )
 char* memcreate(char* source,int n)
 {
 
-char* mem=(char*)malloc(sizeof(char)*n+1);	
-		 strncpy(mem,source,n);
+char* mem=(char*)malloc(sizeof(char)*n+1);
+char *s=source;	
+		 strncpy(mem,s,n);
 return mem;
 
 }

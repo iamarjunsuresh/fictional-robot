@@ -86,62 +86,54 @@ struct fn_param_list *func_def;
 %token QUOTE
 
 %type <val>  NUMBER  ADD SUB MUL DIV ABS  EOL  STATEMENT  IDENTIFIER  ASSIGN  ANY  CHARACTER_LITERAL  INCLUDE  DEFINE  DATATYPE  FUNC_NAME  FUNC_DECL  FUNC_PARAMS  FUNC_DEF  VAR_NAME  COMMA  C_O   C_C  B_O  B_C  CHAR  FLOAT  INT  AND  OR  STRUCT  FOR  WHILE  IF  THEN  ELSE  RETURN  BREAK  SWITCH CASE  SPACE  UNSIGNED  CONTINUE  SIGNED  VOID  DEFAULT  GOTO  SIZEOF  COLON  HASHS  STRING  ALPHAS  QUOTE 
-%type <sset> var_s var_dec_single var_dec_options
+%type <sset> var_s var_dec_single var_dec_options var_s1 var_dec_single1 var_dec_options1
 %type <cons> literal param_list_comma_allow_blank param_list_comma
 
-%type <act> else_part assignment_statement assignment_allow_blank for_var_init func_call
+%type <act> else_part assignment_statement assignment_allow_blank for_var_init func_call program1 assignment_blank
 %type <fn> LT GT EXCLAIM condition_oper logical_oper
 %type <b> block_code block
-%type <dar> operands exp condition pred2 condition_one cond cond_allow_blank
+%type <dar> operands exp condition pred2 condition_one cond_allow_blank
 
-%type <func_def> var_list_comma
+%type <func_def> var_list_comma list_comma
 
 %nonassoc "then"
 %nonassoc "else"
 %%
-test: {printf("test");}
- |var_dec_sing
- ;
-var_dec_sing:DATATYPE var_dec_ {  
- 						 }
- ;
 
-var_dec_:_s  IDENTIFIER EOL {
-					}	
- | _s  IDENTIFIER ASSIGN literal EOL  { }
- ;
-_s: %empty {}
-| _s IDENTIFIER COMMA  			{
-       }
- |_s IDENTIFIER ASSIGN literal  COMMA {
-       }
- ;
+prog: program1
+;
+
+test:
+|test
                            
-program1: { int c; scanf(" %d",&c);
-		summary(&file);}
+program1:  { int c;
+		summary(&file);
+		$$=NULL;}
  |program1 var_dec_single 
  				{struct symbol *s;s=$2->start;
- 				struct symbol *t=NULL;
-    				while(s!=NULL)
-    				{
+ 				
+    				
     				//printf("%d",file.symcount);
-    				printf("\nadding symbol:");print_symbol(s);
+    				/*printf("\nadding symbol:");print_symbol(s);
     				int y;
     				
-    				printf("infile:");print_symbol(file.symbols); 
+    				printf("infile:");//print_symbol(file.symbols); 
     				scanf(" %d",&y);
     				
-    		
-                           addsymbol(*s,&file,NULL);
+    		*/
+                           addsymbol(s,&file,NULL);
                            
-                           t=s;
-                           free(t);
-                           s=s->next;
                            
+                           $$=NULL;
                            }
-                           }
- |program1 function_def
+                           
+                           
+                           
+                           
+ | program1 function_def {//int v; printf("func_def"); scanf(" %d", &v);
+ 				}
  ;
+ 
 program:
  |directives
  |program struct
@@ -158,45 +150,29 @@ struct_vars:
  |struct_vars var_dec_single
  ;
 
-var_dec_single:DATATYPE var_dec_options {  $2->datatype=$1;  
+var_dec_single:DATATYPE var_dec_options { $2->datatype=$1;  
  						$$=$2;
  						
  						 }
+
  ;
 
-var_dec_options:var_s  IDENTIFIER EOL {struct symbol *t,*prev=NULL;t =$1->start;
-					while(t!=NULL)
-					{
-					print_symbol(t);
-					prev=t;
-					t=t->next;
-					}
+var_dec_options:IDENTIFIER var_s EOL {struct symbol *t,*prev=NULL;t =$2->start;
+					
 					struct symbol *node;
 					node=(struct symbol*)malloc(sizeof(struct symbol));
-					node->name=$2;
+					node->name=$1;
 					node->next=NULL;
 					node->value=NULL;
 						print_symbol(node);			
-					if(prev==NULL&&t==NULL)
-					{
-					printf("added first");
-					$1->start=node;
+					node->next=t;
+					$2->start=node;
 					
-					}
-					else{
-					
-					prev->next=node;
-					}
-					
-					$$=$1;
+					print_symbol($2->start);
+					$$=$2;
 					}	
- | var_s  IDENTIFIER ASSIGN literal EOL  {struct symbol *t,*prev=NULL;t =$1->start;
-					while(t!=NULL)
-					{
+ |IDENTIFIER ASSIGN literal var_s  EOL  {struct symbol *t,*prev=NULL;t =$4->start;
 					
-					prev=t;
-					t=t->next;
-					}
 					struct symbol *node;
 					node=(struct symbol*)malloc(sizeof(struct symbol));
 					node->value=(struct literal_data *)malloc(sizeof(struct literal_data));
@@ -204,36 +180,26 @@ var_dec_options:var_s  IDENTIFIER EOL {struct symbol *t,*prev=NULL;t =$1->start;
 					node->name=$2;
 					node->next=NULL;
 				
-				node->value=$4	;			
+				node->value=$3	;			
 						print_symbol(node);
-					if(prev==NULL&&t==NULL)
-					{
 					
-					$1->start=node;
-					
-					}
-					else{
-					
-					prev->next=node;
-					}
-					$$=$1; }
+					node->next=t;
+					$4->start=node;
+					$$=$4; }
  ;
-var_s: %empty {struct symbolset *s;s=(struct symbolset*)malloc(sizeof(struct symbolset));
+var_s:%empty	{struct symbolset *s;s=CREATE(symbolset);
        s->start=NULL;
+       
        
        $$=s;
        
        }
-| var_s IDENTIFIER COMMA  			{
+       
+|COMMA IDENTIFIER var_s  			{
                                                     
        
-       struct symbol *t,*prev=NULL;t =$1->start;
-					while(t!=NULL)
-					{
+       struct symbol *t,*prev=NULL;t =$3->start;
 					
-					prev=t;
-					t=t->next;
-					}
 					struct symbol *node;
 					node=(struct symbol*)malloc(sizeof(struct symbol));
 					node->value=(struct literal_data *)malloc(sizeof(struct literal_data)*100);
@@ -243,25 +209,18 @@ var_s: %empty {struct symbolset *s;s=(struct symbolset*)malloc(sizeof(struct sym
 				
 				node->value=NULL;				
 					
-					if(prev==NULL&&t==NULL)
-					{
 					
-					$1->start=node;
-					
-					}
-					else{
-					
-					prev->next=node;
-					}
 					print_symbol(node);
-					$$=$1;
+					node->next=t;
+					$3->start=node;
+					$$=$3;
        }
- |var_s IDENTIFIER ASSIGN literal  COMMA {struct symbolset *s;s=(struct symbolset*)malloc(sizeof(struct symbolset));
+ |COMMA IDENTIFIER ASSIGN literal  var_s {struct symbolset *s;s=(struct symbolset*)malloc(sizeof(struct symbolset));
        s->start=NULL;
        
        printf("%d",file.symcount);
        
-       struct symbol *t,*prev=NULL;t =$1->start;
+       struct symbol *t,*prev=NULL;t =$5->start;
 					while(t!=NULL)
 					{
 					
@@ -275,24 +234,25 @@ var_s: %empty {struct symbolset *s;s=(struct symbolset*)malloc(sizeof(struct sym
 					node->name=$2;
 					node->next=NULL;
 				
-				node->value=$4		;
+				node->value=$4;		;
 					print_symbol(node);		
 					
 					if(prev==NULL&&t==NULL)
 					{
 					
-					$1->start=node;
+					$5->start=node;
 					
 					}
 					else{
 					
 					prev->next=node;
 					}
-					$$=$1;
+					$$=$5;
        }
  ;
 
 function_def:DATATYPE IDENTIFIER B_O var_list_comma B_C block {  
+ printf("function def created");
 
 struct fn_sig *sig=CREATE(fn_sig);
 sig->returntype=$1;
@@ -300,7 +260,8 @@ sig->name=$2;
 sig->start=$4;
 $6->sig=sig;
 $6->name=$2;
-
+printf("root block");
+print_block($6);
 addblock($6,&file);
 
 
@@ -312,22 +273,29 @@ addblock($6,&file);
 function_dec:DATATYPE IDENTIFIER B_O var_list_comma B_C EOL  {  }
  ;
 var_list_comma: { $$=NULL;}
-  |var_list_comma COMMA DATATYPE IDENTIFIER { struct fn_param_list *n=CREATE(fn_param_list);
-  			n->datatype=$3;
-  			n->name=$4;
-  			n->next=NULL;
-  			$1->next=n;
-  			$$=$1;	
-  
-  					
-  					}
-  |DATATYPE IDENTIFIER {     
-  			struct fn_param_list *n=CREATE(fn_param_list);
+  |  DATATYPE IDENTIFIER  list_comma{ struct fn_param_list *n=CREATE(fn_param_list);
   			n->datatype=$1;
   			n->name=$2;
-  			$$=$1;				}
-  ;
+  			n->next=$3;
+  			
+  			$$=n;	
   
+  					
+}
+  |
+  ;
+  list_comma: {$$=NULL;}
+  |COMMA DATATYPE IDENTIFIER list_comma {
+  
+  struct fn_param_list *n=CREATE(fn_param_list);
+  			n->datatype=$2;
+  			n->name=$3;
+  			n->next=$4;
+  			
+  			$$=n;	
+  
+  }
+  ;
 param_list_comma_allow_blank: {$$=NULL;}
  |param_list_comma  {$$=$1;}
  ;
@@ -346,87 +314,116 @@ literal:FLOAT {
 		node.f=f;
 		node.type=2;
 		struct literal_data *n;n=CREATE(literal_data);*n=node;
+		free($1);
 		$$=n;
 		}
  |INT { int  i;
-		sscanf("%d",$1,&i);
+
+		sscanf(" %d",$1,&i);
 		struct literal_data node;
+		printf("literal-data:%d",i);
+		scanf(" %d",&i);
 		node.i=i;
 		node.type=1;
 		struct literal_data *n;n=CREATE(literal_data);*n=node;
+		free($1);
 		$$=n;}
  |CHAR { char ch;
-		sscanf("%c",$1,&ch);
+		sscanf(" %c",$1,&ch);
 		struct literal_data node;
 		node.c=ch;
 		node.type=3;
 		struct literal_data *n;n=CREATE(literal_data);*n=node;
+		free($1);
 		$$=n;}
  |STRING { 
 		struct literal_data node;
 		node.str=CREAT(char,strlen($1));
 		node.type=4;
 		struct literal_data *n;n=CREATE(literal_data);*n=node;
+		free($1);
 		$$=n;}
  ;
  
-block:C_O block_code C_C {$$=$2;} 
+block:C_O block_code C_C {
+
+print_block($2);
+$$=$2;} 
  ;
  
-block_code:  {$$=createblock(NULL,NULL,NULL,NULL,NULL,NULL);}
- |block_code var_dec_single { struct symbol *s;s=$1->sym;
-    				while(s!=NULL)
-    				{
-                           addsymbol(*s,&file,$1);
+block_code:  {
+
+		//printf("\nnew block created");
+		
+		struct block *b=createblock(NULL,NULL,NULL,NULL,NULL,NULL);
+		/*print_block(b);
+		
+		int c;scanf(" %d",&c);*/
+		$$=b;
+		}
+ |var_dec_single block_code { //	printf("called");
+ 				struct symbol *s;s=$1->start;
+    				//int c;scanf(" %d",&c);
+                           addsymbol(s,&file,$2);
+                           print_block($2);
                            
-                           s=s->next;} return $1;}
- |block_code assignment_statement EOL {  struct action *p=$1->istr;
- 							$2->next=p;
- 							$1->istr=$2;
- 							$$=$1;
+                          // scanf(" %d",&c);
+                            $$= $2;}
+ | assignment_statement EOL block_code {  struct action *p=$3->istr;
+ 							$1->next=p;
+ 							$3->istr=$1;
+ 							$$=$3;
  							}
- |block_code FOR B_O for_var_init EOL cond_allow_blank EOL assignment_allow_blank B_C block {
+ |FOR B_O for_var_init EOL cond_allow_blank EOL assignment_blank B_C block block_code  {
+/* printf("fors block:");print_block($9);
+printf("fors parant:");print_block($10);
+int c;
+scanf(" %d",&c); 		*/					
+ 						struct action *n=createaction(createdataresult($4,NULL),for_block,createdataresult(NULL,chainaction($2,$6))); n->b=$9;
+ 						
+ 							struct action *p=$10->istr;
+ 							n->next=p;
+ 							$10->istr=n;
  							
- 						struct action *n=createaction(createdataresult($6,NULL),for_block,createdataresult(NULL,chainaction($4,$7))); n->b=$9;
- 							struct action *p=$1->istr;
- 							n->next=p;
- 							$1->istr=n;
- 							$$=$1;
+ 							$$=$10;
  							}
- |block_code IF B_O condition B_C block else_part {struct action *n=createaction($3,if_cond,NULL); n->b=$5;
- 							struct action *p=$1->istr;
+ | IF B_O condition B_C block else_part block_code {struct action *n=createaction($3,if_cond,NULL); n->b=$5;
+ 							struct action *p=$7->istr;
  							n->next=p;
- 							$1->istr=n;
- 							$$=$1;
+ 							$7->istr=n;
+ 							 /*printf("if block:");print_block($5);
+printf("if parant:");print_block($7);int c;
+scanf(" %d",&c); */
+ 							$$=$7;
  							}
- |block_code CONTINUE EOL {struct action *n=createaction(NULL,continue_stat,NULL);
- 							struct action *p=$1->istr;
+ | CONTINUE EOL block_code {struct action *n=createaction(NULL,continue_stat,NULL);
+ 							struct action *p=$3->istr;
  							n->next=p;
- 							$1->istr=n;
- 							$$=$1;
+ 							$3->istr=n;
+ 							$$=$3;
  							}
- |block_code SWITCH B_O exp B_C C_O switch_block C_C
- |block_code BREAK EOL {struct action *n=createaction($3,brk,NULL); 
- 							struct action *p=$1->istr;
+ |SWITCH B_O exp B_C C_O switch_block C_C block_code {$$=$8;}
+ | BREAK EOL  block_code{struct action *n=createaction($3,brk,NULL); 
+ 							struct action *p=$3->istr;
  							n->next=p;
- 							$1->istr=n;
- 							$$=$1;
+ 							$3->istr=n;
+ 							$$=$3;
  							}
- |block_code RETURN EOL {struct action *n=createaction($3,ret,NULL); 
- 							struct action *p=$1->istr;
+ | RETURN EOL block_code {struct action *n=createaction($3,ret,NULL); 
+ 							struct action *p=$3->istr;
  							n->next=p;
- 							$1->istr=n;
- 							$$=$1;
+ 							$3->istr=n;
+ 							$$=$3;
  							}
- |block_code func_call {
- 							struct action *p=$1->istr;
+ |func_call block_code  {
+ 							struct action *p=$2->istr;
  							$2->next=p;
- 							$1->istr=$2;
- 							$$=$1;
+ 							$2->istr=$1;
+ 							$$=$2;
  							}
  ;
  
- func_call:IDENTIFIER B_O param_list_comma B_C EOL {   
+ func_call:IDENTIFIER B_O param_list_comma_allow_blank B_C EOL {   
  						struct data_access_result * data_result=CREATE(data_access_result);
  						data_result->data=CREATE(literal_data);
  						data_result->data->userdefined=$3;
@@ -456,7 +453,8 @@ else_part:  {$$=NULL;}
  		$$=els;
  		}
  ;
-for_var_init: IDENTIFIER ASSIGN literal  {
+for_var_init: { $$=NULL;}
+|IDENTIFIER ASSIGN literal  {
 				
 				
 			$$=createaction(
@@ -479,10 +477,12 @@ for_var_init: IDENTIFIER ASSIGN literal  {
  						}
  
  ;
+assignment_blank:%empty {$$=NULL;}
+|assignment_allow_blank {$$=$1;}
+;
+assignment_allow_blank:assignment_statement {$$=$1;}
 
-assignment_allow_blank: {$$=NULL;}
- | assignment_allow_blank assignment_statement {$$=createaction(createdataresult(NULL,$1),$2,NULL);}
- | assignment_allow_blank assignment_statement COMMA {$$=createaction(createdataresult(NULL,$1),$2,NULL);}
+ |  assignment_statement COMMA assignment_allow_blank {$$=chainaction($1,$3);}
  ;
 
 assignment_statement:IDENTIFIER ASSIGN exp {	$$=createaction(
@@ -517,12 +517,12 @@ condition:condition_one logical_oper condition_one {if($1->act==NULL)
 					if($3->act==NULL)
 					{
 					$$=createdataresult(NULL,createaction($1->data,$2,$3->data));
-					return;
+					
 					
 					}
 					else{
 					$$=createdataresult(NULL,createaction($1->data,$2,$3->act));
-					return;
+					
 					}
 					
 					}
@@ -530,12 +530,12 @@ condition:condition_one logical_oper condition_one {if($1->act==NULL)
 					if($3->data==NULL)
 					{
 					$$=createdataresult(NULL,createaction($1->act,$2,$3->act));
-					return;
+					
 					
 					}
 					else{
 					$$=createdataresult(NULL,createaction($1->act,$2,$3->data));
-					return;
+					
 					}
 					
 					
@@ -548,12 +548,12 @@ condition_one:exp condition_oper exp {
 					if($3->act==NULL)
 					{
 					$$=createdataresult(NULL,createaction($1->data,$2,$3->data));
-					return;
+					
 					
 					}
 					else{
 					$$=createdataresult(NULL,createaction($1->data,$2,$3->act));
-					return;
+					
 					}
 					
 					}
@@ -561,12 +561,12 @@ condition_one:exp condition_oper exp {
 					if($3->data==NULL)
 					{
 					$$=createdataresult(NULL,createaction($1->act,$2,$3->act));
-					return;
+					
 					
 					}
 					else{
 					$$=createdataresult(NULL,createaction($1->act,$2,$3->data));
-					return;
+					
 					}
 					
 					
@@ -597,7 +597,7 @@ operands:IDENTIFIER {  $$=createdataresult(NULL,
  						
 			
 			 }
- |IDENTIFIER B_O param_list_comma B_C { $$=createdataresult(NULL,
+ |IDENTIFIER B_O param_list_comma_allow_blank B_C { $$=createdataresult(NULL,
  						createaction(createdataresult(createidentifier($1),NULL),func_call,createuserdefined($3))
  						);}
  |literal  {$$=createdataresult($1,NULL);}

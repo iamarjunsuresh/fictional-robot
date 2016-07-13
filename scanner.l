@@ -92,7 +92,7 @@ SIZEOF "sizeof"
 
 
 {identifier_regex} {yylval.val=memcreate(yytext,yyleng);
-				
+				printf("identifier return");
 				return IDENTIFIER;}
 
 "'"[a-zA-Z0-9]"'" {yylval.val=memcreate(yytext+1,yyleng-2);return CHAR;}
@@ -125,8 +125,9 @@ SIZEOF "sizeof"
 char* memcreate(char* source,int n)
 {
 
-char* mem=(char*)malloc(sizeof(char)*n+1);	
-		 strncpy(mem,source,n);
+char* mem=(char*)malloc(sizeof(char)*n+1);
+char *s=source;	
+		 strncpy(mem,s,n);
 return mem;
 
 }
